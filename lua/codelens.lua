@@ -38,11 +38,10 @@ function M.show_references_for_all_symbols()
       print(reference_count .. " references found for symbol " .. symbol)
       print("bufnr: " .. bufnr)
       print("line_number: " .. line_number)
-
-
+      local text_to_display = (reference_count == 0 and "Not" or reference_count) .. " referenced"
       local namespace_id = vim.api.nvim_create_namespace("codelens_" .. math.random())
       vim.api.nvim_buf_set_virtual_text(bufnr, namespace_id, line_number - 2,
-        { { reference_count .. " referenced", "Comment" } }, {})
+        { { text_to_display, "Comment" } }, {})
     end)
   end
 
