@@ -1,4 +1,5 @@
 local utils = require('utils')
+local VirtualTextManager = require('VirtualTextManager')
 local M = {}
 
 local function relative_to_seconds(unit, value)
@@ -72,10 +73,19 @@ function M.get_git_info_for_all_symbols(bufnr, lines, pattern)
         local text_to_display = string.format("%s, %s", author, relative_date)
 
         local namespace_id = vim.api.nvim_create_namespace("gitblame_" .. math.random())
-        vim.api.nvim_buf_set_virtual_text(bufnr, namespace_id, line_number - 2, { { text_to_display, "Comment" } }, {})
+        VirtualTextManager.register_virtual_text(bufnr, line_number - 2, text_to_display, "Comment")
       end
     end
   end
+end
+
+function M.get_git_info_for_line(bufnr, line_number)
+  local filename = vim.fn.expand('%:p') -- 現在のファイルの絶対パスを取得
+  local author, date = get_git_blame_info(filename, line_number)
+  if not author or not date then return nil end
+
+  local relative_date = date_to_relative(date)
+  return string.format("%s, %s", author, relative_date)
 end
 
 return M

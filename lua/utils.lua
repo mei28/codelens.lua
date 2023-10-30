@@ -8,4 +8,14 @@ function M.get_symbols_from_line(line_content, pattern)
   return symbols
 end
 
+function M.is_lsp_connected()
+  local lsp_clients = vim.lsp.buf_get_clients()
+  if #lsp_clients == 0 then
+    print("Error: No LSP client is connected.")
+    return false
+  end
+  return true
+end
+
+
 return M
