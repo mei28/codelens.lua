@@ -1,15 +1,7 @@
 local M = {}
 local languages = require('languages')
 local references = require('references')
-
-local function get_symbols_from_line(line_content, pattern)
-  local symbols = {}
-  for word in line_content:gmatch(pattern) do
-    table.insert(symbols, word)
-  end
-  return symbols
-end
-
+local git = require('git') -- git.luaからのインポート
 
 local function is_lsp_connected()
   local lsp_clients = vim.lsp.buf_get_clients()
@@ -41,6 +33,17 @@ function M.show_references_for_all_symbols()
   local pattern = lang_config.pattern or ""
 
   references.get_references_for_all_symbols(bufnr, lines, pattern)
+end
+
+function M.show_git_info_for_all_symbols()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  local lang_config = get_language_config()
+  if not lang_config then return end
+  local pattern = lang_config.pattern or ""
+
+  git.get_git_info_for_all_symbols(bufnr, lines, pattern)
 end
 
 return M

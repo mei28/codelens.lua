@@ -1,14 +1,6 @@
+local utils = require('utils')
 local M = {}
-local languages = require('languages')
 
--- 与えられた行の内容からシンボルを取得します。
-local function get_symbols_from_line(line_content, pattern)
-  local symbols = {}
-  for word in line_content:gmatch(pattern) do
-    table.insert(symbols, word)
-  end
-  return symbols
-end
 
 -- 各シンボルに対して参照情報を取得する関数
 function M.process_symbol(bufnr, lines, symbol, line_number)
@@ -39,7 +31,7 @@ end
 
 function M.get_references_for_all_symbols(bufnr, lines, pattern)
   for line_number, line_content in ipairs(lines) do
-    local symbols = get_symbols_from_line(line_content, pattern)
+    local symbols = utils.get_symbols_from_line(line_content, pattern)
     for _, symbol in pairs(symbols) do
       M.process_symbol(bufnr, lines, symbol, line_number)
     end
