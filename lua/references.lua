@@ -37,15 +37,15 @@ function M.get_references_for_all_symbols(bufnr, lines, pattern)
   end
 end
 
-function M.get_reference_count_for_symbol(bufnr, symbol, line_number)
-  local line_content = vim.api.nvim_buf_get_lines(bufnr, line_number - 1, line_number, false)[1]
-  local symbol_start_position = line_content:find(symbol) or 0
+function M.get_reference_count_for_symbol(bufnr, symbol, line_number, line_content)
+  local symbol_start_position = line_content:find(symbol) - 1 or 0
 
   local params = {
     textDocument = vim.lsp.util.make_text_document_params(),
-    position = { line = line_number, character = symbol_start_position - 1 },
+    position = { line = line_number - 1, character = symbol_start_position },
     context = { includeDeclaration = false }
   }
+  print(vim.inspect(params))
 
 
   local results = vim.lsp.buf_request_sync(bufnr, 'textDocument/references', params, 1000)
@@ -60,8 +60,8 @@ function M.get_reference_count_for_symbol(bufnr, symbol, line_number)
   return nil
 end
 
-function M.get_reference_info_for_line(bufnr, symbol, line_number)
-  local reference_count = M.get_reference_count_for_symbol(bufnr, symbol, line_number)
+function M.get_reference_info_for_line(bufnr, symbol, line_number, line_content)
+  local reference_count = M.get_reference_count_for_symbol(bufnr, symbol, line_number, line_content)
   if reference_count == nil then return "Failed to get references" end
   return (reference_count == 0 and "Not" or tostring(reference_count)) .. " referenced"
 end

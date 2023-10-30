@@ -5,9 +5,9 @@ local git = require('git')
 local utils = require('utils')
 local VirtualTextManager = require('VirtualTextManager')
 
-local function get_all_info_for_line(bufnr, line_number, symbol)
+local function get_all_info_for_line(bufnr, line_number, symbol, line_content)
   local git_info = git.get_git_info_for_line(bufnr, line_number)
-  local reference_info = references.get_reference_info_for_line(bufnr, symbol, line_number)
+  local reference_info = references.get_reference_info_for_line(bufnr, symbol, line_number, line_content)
 
 
   return git_info, reference_info
@@ -57,7 +57,7 @@ function M.show_combined_info_for_all_symbols()
     VirtualTextManager.clear_virtual_text(bufnr, line_number)
     local symbols = utils.get_symbols_from_line(line_content, lang_config.pattern)
     for _, symbol in pairs(symbols) do
-      local git_info, reference_info = get_all_info_for_line(bufnr, line_number, symbol)
+      local git_info, reference_info = get_all_info_for_line(bufnr, line_number, symbol, line_content)
       local combined_info = string.format("%s | %s", git_info or "Unknown Git Info",
         reference_info or "Unknown Reference Info")
       VirtualTextManager.register_virtual_text(bufnr, line_number, combined_info, "Comment")
