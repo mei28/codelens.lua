@@ -1,32 +1,57 @@
 local M = {}
 
-function M.show_references()
-  local current_line = vim.api.nvim_win_get_cursor(0)[1]
-  local bufnr = vim.api.nvim_get_current_buf()
+local function get_symbols_from_line(line_content)
+  -- この関数で行からシンボルを取得する。例として単語を取得している。
+  -- 必要に応じてパターンを変更すること。
+  local symbols = {}
+  local pattern = "def%s+([a-zA-Z_][a-zA-Z0-9_]*)%s*%("
+  for word in line_content:gmatch(pattern) do
+    table.insert(symbols, word)
+  end
+  return symbols
+end
 
-  -- 現在のカーソル位置を基にパラメータを生成し、includeDeclarationを追加
-  local params = vim.lsp.util.make_position_params()
-  params.context = { includeDeclaration = false }
 
-  -- カスタムコールバックで参照を取得
-  vim.lsp.buf_request(bufnr, 'textDocument/references', params, function(err, result)
-    if err then
-      print("Error fetching references:", err.message)
-      return
+function M.show_references_for_all_symbols()
+  local bufnr = vim.api.nvim_get_current_buf() -- ここでバッファ番号を取得
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  local function process_symbol(symbol, line_number)
+    local line_content = lines[line_number]
+    local params = {
+      textDocument = vim.lsp.util.make_text_document_params(),
+      position = { line = line_number - 1, character = line_content:find(symbol) - 1 },
+      context = { includeDeclaration = false }
+    }
+
+    vim.lsp.buf_request(bufnr, 'textDocument/references', params, function(err, result)
+      if err then
+        print("Error fetching references:", err.message)
+        return
+      end
+
+      if not result then
+        return
+      end
+
+      local reference_count = #result
+      print(reference_count .. " references found for symbol " .. symbol)
+      print("bufnr: " .. bufnr)
+      print("line_number: " .. line_number)
+
+
+      local namespace_id = vim.api.nvim_create_namespace("codelens_" .. math.random())
+      vim.api.nvim_buf_set_virtual_text(bufnr, namespace_id, line_number - 2,
+        { { reference_count .. " referenced", "Comment" } }, {})
+    end)
+  end
+
+  for line_number, line_content in ipairs(lines) do
+    local symbols = get_symbols_from_line(line_content)
+    for _, symbol in pairs(symbols) do
+      process_symbol(symbol, line_number)
     end
-
-    if not result then
-      print("No references found")
-      return
-    end
-
-    local reference_count = #result
-
-    -- 現在の行の一つ上に参照数を表示
-    vim.api.nvim_buf_set_virtual_text(0, -1, current_line - 2,
-      { { reference_count .. " referenced", "Comment" } }, {})
-  end)
+  end
 end
 
 return M
-
