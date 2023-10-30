@@ -58,8 +58,37 @@ function M.show_combined_info_for_all_symbols()
     local symbols = utils.get_symbols_from_line(line_content, lang_config.pattern)
     for _, symbol in pairs(symbols) do
       local git_info, reference_info = get_all_info_for_line(bufnr, line_number, symbol, line_content)
-      local combined_info = string.format("%s | %s", git_info or "Unknown Git Info",
+      local combined_info = string.format("🔍 " .. "%s | %s", git_info or "Unknown Git Info",
         reference_info or "Unknown Reference Info")
+      VirtualTextManager.register_virtual_text(bufnr, line_number, combined_info, "Comment")
+    end
+  end
+end
+
+function M.show_info_for_all_symbols(config)
+  if not config.is_enabled then return end
+
+  local bufnr = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local lang_config = get_language_config()
+  if not lang_config then return end
+
+  for line_number, line_content in ipairs(lines) do
+    VirtualTextManager.clear_virtual_text(bufnr, line_number)
+    local symbols = utils.get_symbols_from_line(line_content, lang_config.pattern)
+    for _, symbol in pairs(symbols) do
+      local combined_info = "🔍 "
+
+      if config.show_git then
+        local git_info = git.get_git_info_for_line(bufnr, line_number)
+        combined_info = combined_info .. (git_info or "Unknown Git Info")
+      end
+
+      if config.show_references then
+        local reference_info = references.get_reference_info_for_line(bufnr, symbol, line_number, line_content)
+        combined_info = combined_info .. " | " .. (reference_info or "Unknown Reference Info")
+      end
+
       VirtualTextManager.register_virtual_text(bufnr, line_number, combined_info, "Comment")
     end
   end

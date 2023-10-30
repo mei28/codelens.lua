@@ -45,7 +45,6 @@ function M.get_reference_count_for_symbol(bufnr, symbol, line_number, line_conte
     position = { line = line_number - 1, character = symbol_start_position },
     context = { includeDeclaration = false }
   }
-  print(vim.inspect(params))
 
 
   local results = vim.lsp.buf_request_sync(bufnr, 'textDocument/references', params, 1000)
