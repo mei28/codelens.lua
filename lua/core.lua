@@ -52,4 +52,31 @@ function M.show_info_for_all_symbols(config)
   end
 end
 
+function M.show_info_for_word_under_cursor(config)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local symbol, start_col, end_col = utils.get_word_under_cursor()
+  local line_number = vim.api.nvim_win_get_cursor(0)[1]
+  if not symbol then return end
+
+  -- バーチャルテキストをクリアする
+  VirtualTextManager.clear_virtual_text(bufnr, line_number)
+
+  -- 言語の設定を取得する
+  local lang_config = get_language_config()
+  if not lang_config then return end
+
+
+  local combined_info = "🔍 [" .. symbol .. "] "
+  -- 参照情報を取得して結合する
+  if config.show_references then
+    local lines = utils.get_lines_from_buf()
+    local line_content = lines[line_number]
+    local reference_info = references.get_reference_info_for_line(bufnr, symbol, line_number, line_content)
+    combined_info = combined_info  .. (reference_info or "Unknown Reference Info")
+  end
+
+  -- バーチャルテキストとして情報を登録する
+  VirtualTextManager.register_virtual_text(bufnr, line_number, combined_info, "Comment")
+end
+
 return M

@@ -1,5 +1,6 @@
 local M = {}
 local core = require('core')
+local utils = require('utils')
 local VirtualTextManager = require('VirtualTextManager')
 
 M.core = require('core')
@@ -54,5 +55,20 @@ function M.clear_info()
   end
   config.is_enabled = false
 end
+
+function M.show_cursor_info()
+  core.show_info_for_word_under_cursor(config)
+end
+
+function M.clear_virtual_text_on_cursor_move()
+  local bufnr = utils.get_current_buf()
+  local i = utils.get_current_line_number()
+  VirtualTextManager.clear_virtual_text(bufnr, i)
+end
+
+vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+  group = vim.api.nvim_create_augroup("ClearVirtualText", { clear = true }),
+  callback = M.clear_virtual_text_on_cursor_move,
+})
 
 return M

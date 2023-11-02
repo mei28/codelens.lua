@@ -36,4 +36,21 @@ function M.get_lines_from_buf()
   return vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 end
 
+function M.get_word_under_cursor()
+  local col = M.get_win_cursor()[2] + 1
+  local line = vim.api.nvim_get_current_line()
+  local start_col = line:sub(1, col):find("%f[%w_]%w*$")
+  if not start_col then
+    start_col = 1
+  end
+  local end_col = line:find("%f[%W_]", col) or (#line + 1)
+
+  local word = line:sub(start_col, end_col - 1)
+  return word, start_col, end_col
+end
+
+function M.get_win_cursor()
+  return vim.api.nvim_win_get_cursor(0)
+end
+
 return M
