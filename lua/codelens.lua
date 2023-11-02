@@ -19,7 +19,7 @@ end
 
 local function update_display()
   if config.is_enabled then
-    M.show_info()
+    M.show_all_info()
   else
     M.clear_info()
   end
@@ -40,19 +40,19 @@ function M.toggle()
   update_display()
 end
 
--- 実際の情報表示関数
-function M.show_info()
+function M.show_all_info()
   if not config.is_enabled then return end
   core.show_info_for_all_symbols(config)
+  config.is_enabled = true
 end
 
--- 表示されている情報をクリアする関数
 function M.clear_info()
   local bufnr = vim.api.nvim_get_current_buf()
   local line_count = vim.api.nvim_buf_line_count(bufnr)
   for i = 1, line_count do
     VirtualTextManager.clear_virtual_text(bufnr, i)
   end
+  config.is_enabled = false
 end
 
 return M

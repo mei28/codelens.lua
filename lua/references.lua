@@ -61,7 +61,7 @@ end
 
 function M.get_reference_info_for_line(bufnr, symbol, line_number, line_content)
   local reference_count = M.get_reference_count_for_symbol(bufnr, symbol, line_number, line_content)
-  if reference_count == nil then return "Failed to get references" end
+  if reference_count == nil then reference_count = 0 end
   return (reference_count == 0 and "Not" or tostring(reference_count)) .. " referenced"
 end
 
