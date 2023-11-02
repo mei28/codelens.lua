@@ -1,5 +1,3 @@
-local utils = require('utils')
-local VirtualTextManager = require('VirtualTextManager')
 local M = {}
 
 local function relative_to_seconds(unit, value)
@@ -47,36 +45,6 @@ local function get_git_blame_info(filename, line_number)
   end
 
   return author, date
-end
-
-function M.show_git_info_for_current_line()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local filename = vim.fn.expand('%:p') -- 現在のファイルの絶対パスを取得
-  local line_number = vim.fn.line('.')  -- 現在の行番号を取得
-
-  local author, date = get_git_blame_info(filename, line_number)
-  if not author or not date then return end
-
-  local relative_date = date_to_relative(date)
-  -- local message = string.format("Last edited by %s %s", author, relative_date)
-  local message = string.format("%s, %s", author, relative_date)
-  print(message)
-end
-
-function M.get_git_info_for_all_symbols(bufnr, lines, pattern)
-  for line_number, line_content in ipairs(lines) do
-    local symbols = utils.get_symbols_from_line(line_content, pattern)
-    for _, symbol in ipairs(symbols) do
-      local author, date = get_git_blame_info(vim.fn.expand('%:p'), line_number)
-      if author and date then
-        local relative_date = date_to_relative(date)
-        local text_to_display = string.format("%s, %s", author, relative_date)
-
-        local namespace_id = vim.api.nvim_create_namespace("gitblame_" .. math.random())
-        VirtualTextManager.register_virtual_text(bufnr, line_number - 2, text_to_display, "Comment")
-      end
-    end
-  end
 end
 
 function M.get_git_info_for_line(bufnr, line_number)

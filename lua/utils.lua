@@ -17,5 +17,17 @@ function M.is_lsp_connected()
   return true
 end
 
+function M.get_current_line_number()
+  return vim.api.nvim_win_get_cursor(0)[1]
+end
+
+function M.get_current_buf()
+  return vim.api.nvim_get_current_buf()
+end
+
+function M.get_lines_from_buf()
+  local bufnr = M.get_current_buf()
+  return vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+end
 
 return M
