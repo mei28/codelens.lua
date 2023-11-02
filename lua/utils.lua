@@ -2,8 +2,14 @@ local M = {}
 -- 与えられた行の内容からシンボルを取得します。
 function M.get_symbols_from_line(line_content, pattern)
   local symbols = {}
-  for word in line_content:gmatch(pattern) do
-    table.insert(symbols, word)
+  local unique_symbols = {}
+  for _, p in ipairs(pattern) do
+    for word in line_content:gmatch(p) do
+      if not unique_symbols[word] then
+        unique_symbols[word] = true
+        table.insert(symbols, word)
+      end
+    end
   end
   return symbols
 end

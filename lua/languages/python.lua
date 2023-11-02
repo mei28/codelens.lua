@@ -1,5 +1,8 @@
 local M = {}
 
-M.pattern = "def%s+([a-zA-Z_][a-zA-Z0-9_]*)%s*%("
+M.pattern = {
+  "class%s+([%w_]+)",
+  "def%s+([%w_]+)",
+}
 
 return M
