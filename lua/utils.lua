@@ -1,5 +1,4 @@
 local M = {}
--- 与えられた行の内容からシンボルを取得します。
 function M.get_symbols_from_line(line_content, pattern)
   local symbols = {}
   local unique_symbols = {}
@@ -39,11 +38,19 @@ end
 function M.get_word_under_cursor()
   local col = M.get_win_cursor()[2] + 1
   local line = vim.api.nvim_get_current_line()
-  local start_col = line:sub(1, col):find("%f[%w_]%w*$")
-  if not start_col then
-    start_col = 1
+
+  -- 単語の左側の境界を探す
+  local start_col = col
+  while start_col > 0 and not line:sub(start_col, start_col):match("[%s.,=%[%]{}\"'`()<>:]") do
+    start_col = start_col - 1
   end
-  local end_col = line:find("%f[%W_]", col) or (#line + 1)
+  start_col = start_col + 1
+
+  -- 単語の右側の境界を探す
+  local end_col = col + 1
+  while end_col <= #line and not line:sub(end_col, end_col):match("[%s.,=%[%]{}\"'`()<>:]") do
+    end_col = end_col + 1
+  end
 
   local word = line:sub(start_col, end_col - 1)
   return word, start_col, end_col
