@@ -16,6 +16,11 @@ local config = {
 function M.setup(opts)
   config.show_git = opts.show_git or config.show_git
   config.show_references = opts.show_references or config.show_references
+
+  vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+    group = vim.api.nvim_create_augroup("ClearVirtualText", { clear = true }),
+    callback = M.clear_virtual_text_on_cursor_move,
+  })
 end
 
 local function update_display()
@@ -65,10 +70,5 @@ function M.clear_virtual_text_on_cursor_move()
   local i = utils.get_current_line_number()
   VirtualTextManager.clear_virtual_text(bufnr, i)
 end
-
-vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-  group = vim.api.nvim_create_augroup("ClearVirtualText", { clear = true }),
-  callback = M.clear_virtual_text_on_cursor_move,
-})
 
 return M

@@ -76,7 +76,7 @@ function M.show_info_for_word_under_cursor(config)
   end
 
   -- バーチャルテキストとして情報を登録する
-  VirtualTextManager.register_virtual_text(bufnr, line_number, combined_info, "Comment")
+  VirtualTextManager.register_virtual_text(bufnr, line_number+1, combined_info, "Comment")
 end
 
 return M
